@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { margin: 0; }
+    .container { display: flex; flex-direction: column; min-height: 100vh; }
+    .header, .footer { background: #376F9B; color: #fff; padding: 1em; text-align: center; }
+    .nav { background: #26567B; padding: 1em; }
+    .main { flex: 1; display: flex; }
+    .col { flex: 1; padding: 2em; }
+    @media (max-width: 768px) {
+      .main { flex-direction: column; }
+    }
+    /* @media (max-width: 768px) {
+    .section { width: 100%; }
+    .image { display: block; width: 100%; }            Answer 2
+    }
+    @media (min-width: 769px) {
+    .section { display: inline-block; width: 48%; }
+    .image { width: 48%; float: left; }
+    } */
+    /* .bounce { animation: bounce 2s infinite; }
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }         Answer 3
+        50% { transform: translateY(-30px); }
+    }
+    .fade { animation: fadein 3s; }
+    @keyframes fadein {
+        from { opacity: 0; }
+        to { opacity: 5; }
+    } */
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">Header</div>
+    <div class="nav">Navigation Bar</div>
+    <div class="main">
+      <div class="col">Column 1</div>
+      <div class="col">Column 2</div>
+    </div>
+    <div class="footer">Footer</div>
+    <div class="bounce">Bouncing Element</div>
+    <div class="fade">Fading Element</div>
+  </div>
+</body>
+</html>
