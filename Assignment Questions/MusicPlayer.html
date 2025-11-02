@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Music Player</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1e1e1e;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .player {
+            background-color: #2c2c2c;
+            border-radius: 15px;
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        audio {
+            width: 100%;
+            outline: none;
+        }
+
+        .song-info {
+            margin-top: 10px;
+        }
+
+        img {
+            width: 100%;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="player">
+        <h2>Simple Music Player</h2>
+        <img src="Snap.jpg" alt="Music Cover">
+        <div class="song-info">
+            <p><strong>Now Playing:</strong> Sample Song</p>
+        </div>
+        <audio controls="">
+            <source src="Snap.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+</body>
+</html>
