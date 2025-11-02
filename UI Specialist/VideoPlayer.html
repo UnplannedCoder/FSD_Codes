@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>HTML5 Video Player</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+        :root{
+            --bg:#0f1724; --card:#0b1220; --accent:#06b6d4; --muted:#94a3b8; --light:#e6eef8;
+        }
+        html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;background:linear-gradient(180deg,var(--bg),#071020);color:var(--light)}
+        .app{max-width:960px;margin:28px auto;padding:18px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border-radius:10px;box-shadow:0 8px 30px rgba(2,6,23,0.6)}
+        h1{font-size:18px;margin:0 0 12px;color:var(--light)}
+        .player{display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start}
+        .video-wrap{background:var(--card);border-radius:8px;padding:10px}
+        video{width:100%;height:360px;background:#000;border-radius:6px;display:block;outline:none}
+        .controls{display:flex;align-items:center;gap:8px;padding:10px 6px 0;flex-wrap:wrap}
+        button,select,input[type=range]{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--light);padding:6px 8px;border-radius:6px}
+        .btn{cursor:pointer}
+        .progress{flex:1;display:flex;align-items:center;gap:8px}
+        .time{font-family:monospace;color:var(--muted);font-size:13px}
+        .progress input[type=range]{width:100%}
+        .side{padding:10px;background:rgba(255,255,255,0.02);border-radius:8px;min-height:360px}
+        .side h2{font-size:13px;margin:0 0 8px;color:var(--muted)}
+        .playlist{max-height:230px;overflow:auto;margin-bottom:8px}
+        .item{padding:8px;border-radius:6px;margin-bottom:6px;background:rgba(255,255,255,0.01);display:flex;justify-content:space-between;align-items:center;font-size:13px}
+        .item.active{border:1px solid rgba(6,182,212,0.12);background:linear-gradient(90deg,rgba(6,182,212,0.03),transparent)}
+        .small{font-size:12px;color:var(--muted)}
+        .file-row{display:flex;gap:8px;align-items:center}
+        .dropzone{border:2px dashed rgba(255,255,255,0.03);padding:10px;border-radius:6px;text-align:center;color:var(--muted);cursor:pointer}
+        .flex-col{display:flex;flex-direction:column;gap:8px}
+        footer{margin-top:12px;color:var(--muted);font-size:12px}
+        /* fullscreen adjustments */
+        .fs video{height:calc(100vh - 120px)}
+        @media (max-width:840px){
+            .player{grid-template-columns:1fr;align-items:stretch}
+            video{height:260px}
+        }
+    </style>
+</head>
+<body>
+    <div class="app" id="app">
+        <h1>HTML5 Video Player</h1>
+        <div class="player">
+            <div class="video-wrap">
+                <video id="video" tabindex="0" preload="metadata">
+                    <!-- initial source is blank. Add using "Open file" or "Add URL" -->
+                    Your browser doesn't support HTML5 video.
+                </video>
+
+                <div class="controls" id="controls">
+                    <button class="btn" id="play">Play</button>
+                    <button class="btn" id="stop">Stop</button>
+                    <div class="progress">
+                        <span class="time" id="current">00:00</span>
+                        <input type="range" id="seek" min="0" max="100" value="0" step="0.1">
+                        <span class="time" id="duration">00:00</span>
+                    </div>
+                    <input type="range" id="volume" min="0" max="1" step="0.01" style="width:110px" title="Volume">
+                    <button class="btn" id="mute">Mute</button>
+                    <select id="playbackRate" title="Playback speed">
+                        <option value="0.25">0.25x</option>
+                        <option value="0.5">0.5x</option>
+                        <option value="0.75">0.75x</option>
+                        <option value="1" selected>1x</option>
+                        <option value="1.25">1.25x</option>
+                        <option value="1.5">1.5x</option>
+                        <option value="2">2x</option>
+                    </select>
+                    <button class="btn" id="fs">Fullscreen</button>
+                </div>
+
+                <div style="display:flex;gap:8px;padding:8px 6px 0;flex-wrap:wrap;align-items:center">
+                    <label class="small">Subtitles:</label>
+                    <input type="file" id="subFile" accept=".vtt,.srt">
+                    <button class="btn" id="removeSubs">Remove subs</button>
+                </div>
+
+                <div style="padding:8px 6px 12px;color:var(--muted);font-size:13px">
+                    Tips: drag & drop video files into the playlist, or use "Open file" / "Add URL". Keyboard: Space play/pause, ←/→ seek 5s, ↑/↓ volume.
+                </div>
+            </div>
+
+            <aside class="side">
+                <div class="flex-col">
+                    <div class="file-row">
+                        <input type="file" id="fileInput" accept="video/*" multiple>
+                        <button class="btn" id="openFile">Open file</button>
+                        <button class="btn" id="clearList">Clear</button>
+                    </div>
+
+                    <div class="file-row">
+                        <input type="text" id="urlInput" placeholder="http(s) video URL" style="flex:1;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--light)">
+                        <button class="btn" id="addUrl">Add URL</button>
+                    </div>
+
+                    <h2>Playlist</h2>
+                    <div class="playlist" id="playlist" ondragover="event.preventDefault()">
+                        <div class="dropzone" id="dropzone">Drag & drop video files here</div>
+                    </div>
+
+                    <div>
+                        <label class="small">Loop</label>
+                        <input type="checkbox" id="loop">
+                        <label class="small" style="margin-left:10px">Auto-play next</label>
+                        <input type="checkbox" id="autonext" checked>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <footer>Built with HTML5 & JavaScript — local-first, no external libs.</footer>
+    </div>
+
+    <script>
+        // GitHub Copilot generated player
+        const video = document.getElementById('video');
+        const playBtn = document.getElementById('play');
+        const stopBtn = document.getElementById('stop');
+        const seek = document.getElementById('seek');
+        const current = document.getElementById('current');
+        const duration = document.getElementById('duration');
+        const volume = document.getElementById('volume');
+        const muteBtn = document.getElementById('mute');
+        const rate = document.getElementById('playbackRate');
+        const fsBtn = document.getElementById('fs');
+        const fileInput = document.getElementById('fileInput');
+        const openFileBtn = document.getElementById('openFile');
+        const playlistEl = document.getElementById('playlist');
+        const addUrlBtn = document.getElementById('addUrl');
+        const urlInput = document.getElementById('urlInput');
+        const dropzone = document.getElementById('dropzone');
+        const clearListBtn = document.getElementById('clearList');
+        const loopChk = document.getElementById('loop');
+        const autonextChk = document.getElementById('autonext');
+        const subFile = document.getElementById('subFile');
+        const removeSubsBtn = document.getElementById('removeSubs');
+
+        let playlist = []; // {name, src, type}
+        let currentIndex = -1;
+        let userSeeking = false;
+
+        // Utilities
+        function fmtTime(s){
+            if (!isFinite(s)) return '00:00';
+            const h = Math.floor(s/3600);
+            const m = Math.floor((s%3600)/60);
+            const sec = Math.floor(s%60);
+            return (h>0 ? String(h).padStart(2,'0')+':' : '') + String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+        }
+
+        function loadPlaylistUI(){
+            // clear except dropzone
+            playlistEl.querySelectorAll('.item').forEach(n=>n.remove());
+            playlist.forEach((p, idx)=>{
+                const el = document.createElement('div');
+                el.className = 'item' + (idx===currentIndex ? ' active' : '');
+                el.innerHTML = `<div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name}</div>
+                                                <div style="display:flex;gap:6px;align-items:center">
+                                                    <button data-ix="${idx}" class="btn play-item">Play</button>
+                                                    <button data-ix="${idx}" class="btn remove-item">✕</button>
+                                                </div>`;
+                playlistEl.insertBefore(el, dropzone.nextSibling);
+            });
+            playlistEl.querySelectorAll('.play-item').forEach(b=>{
+                b.addEventListener('click', e=>{
+                    const i = Number(e.target.dataset.ix);
+                    playIndex(i);
+                });
+            });
+            playlistEl.querySelectorAll('.remove-item').forEach(b=>{
+                b.addEventListener('click', e=>{
+                    const i = Number(e.target.dataset.ix);
+                    const wasCurrent = i === currentIndex;
+                    playlist.splice(i,1);
+                    if (i < currentIndex) currentIndex--;
+                    else if (wasCurrent) {
+                        // stop or load next
+                        if (playlist.length > 0) {
+                            currentIndex = Math.min(currentIndex, playlist.length-1);
+                            loadIndex(currentIndex);
+                        } else {
+                            currentIndex = -1;
+                            video.removeAttribute('src');
+                            video.load();
+                            updatePlayButton();
+                        }
+                    }
+                    loadPlaylistUI();
+                });
+            });
+        }
+
+        function addToPlaylist(obj){
+            playlist.push(obj);
+            if (currentIndex === -1) {
+                playIndex(playlist.length-1);
+            } else {
+                loadPlaylistUI();
+            }
+        }
+
+        function playIndex(idx){
+            if (idx < 0 || idx >= playlist.length) return;
+            currentIndex = idx;
+            loadIndex(idx, true);
+            loadPlaylistUI();
+        }
+
+        function loadIndex(idx, autoplay=false){
+            const p = playlist[idx];
+            if (!p) return;
+            video.src = p.src;
+            video.type = p.type || '';
+            video.load();
+            if (autoplay) {
+                video.play().catch(()=>{});
+            }
+            updatePlayButton();
+        }
+
+        // controls
+        playBtn.addEventListener('click', ()=> {
+            if (video.paused) video.play(); else video.pause();
+        });
+        stopBtn.addEventListener('click', ()=> {
+            video.pause();
+            video.currentTime = 0;
+        });
+
+        video.addEventListener('play', updatePlayButton);
+        video.addEventListener('pause', updatePlayButton);
+        function updatePlayButton(){
+            playBtn.textContent = video.paused ? 'Play' : 'Pause';
+        }
+
+        video.addEventListener('timeupdate', ()=>{
+            if (!userSeeking && video.duration) {
+                seek.value = (video.currentTime / video.duration) * 100;
+            }
+            current.textContent = fmtTime(video.currentTime);
+        });
+        video.addEventListener('loadedmetadata', ()=>{
+            duration.textContent = fmtTime(video.duration);
+            current.textContent = fmtTime(video.currentTime);
+        });
+
+        seek.addEventListener('input', ()=> {
+            userSeeking = true;
+            const pct = Number(seek.value);
+            const t = (pct/100) * (video.duration || 0);
+            current.textContent = fmtTime(t);
+        });
+        seek.addEventListener('change', ()=> {
+            const pct = Number(seek.value);
+            video.currentTime = (pct/100) * (video.duration || 0);
+            userSeeking = false;
+        });
+
+        volume.addEventListener('input', ()=> {
+            video.volume = Number(volume.value);
+            volume.title = Math.round(video.volume*100) + '%';
+        });
+        // init volume
+        video.volume = 0.8;
+        volume.value = video.volume;
+
+        muteBtn.addEventListener('click', ()=> {
+            video.muted = !video.muted;
+            muteBtn.textContent = video.muted ? 'Unmute' : 'Mute';
+        });
+
+        rate.addEventListener('change', ()=> {
+            video.playbackRate = Number(rate.value);
+        });
+
+        fsBtn.addEventListener('click', ()=> {
+            const el = document.documentElement;
+            if (!document.fullscreenElement) {
+                el.requestFullscreen?.();
+                document.querySelector('.app').classList.add('fs');
+            } else {
+                document.exitFullscreen?.();
+                document.querySelector('.app').classList.remove('fs');
+            }
+        });
+
+        // keyboard shortcuts
+        document.addEventListener('keydown', e=>{
+            if (e.target && (e.target.tagName==='INPUT' || e.target.tagName==='TEXTAREA')) return;
+            if (e.code === 'Space') { e.preventDefault(); if (video.paused) video.play(); else video.pause(); }
+            else if (e.code === 'ArrowLeft') video.currentTime = Math.max(0, video.currentTime - 5);
+            else if (e.code === 'ArrowRight') video.currentTime = Math.min(video.duration || 0, video.currentTime + 5);
+            else if (e.code === 'ArrowUp') { video.volume = Math.min(1, video.volume + 0.05); volume.value = video.volume; }
+            else if (e.code === 'ArrowDown') { video.volume = Math.max(0, video.volume - 0.05); volume.value = video.volume; }
+            else if (e.code === 'KeyF') fsBtn.click();
+            else if (e.code === 'KeyM') muteBtn.click();
+        });
+
+        // playlist file input and drag drop
+        openFileBtn.addEventListener('click', ()=> fileInput.click());
+        fileInput.addEventListener('change', e=>{
+            const files = Array.from(e.target.files || []);
+            files.forEach(f=>{
+                const url = URL.createObjectURL(f);
+                addToPlaylist({name: f.name, src: url, type: f.type});
+            });
+            fileInput.value = '';
+            loadPlaylistUI();
+        });
+
+        dropzone.addEventListener('drop', e=>{
+            e.preventDefault();
+            const files = Array.from(e.dataTransfer.files || []).filter(f=>f.type.startsWith('video/'));
+            files.forEach(f=>{
+                const url = URL.createObjectURL(f);
+                addToPlaylist({name: f.name, src: url, type: f.type});
+            });
+            loadPlaylistUI();
+        });
+
+        // add url
+        addUrlBtn.addEventListener('click', ()=>{
+            const v = urlInput.value.trim();
+            if (!v) return;
+            const name = v.split('/').pop().split('?')[0] || v;
+            addToPlaylist({name, src: v, type: ''});
+            urlInput.value = '';
+            loadPlaylistUI();
+        });
+
+        // autoplay next
+        video.addEventListener('ended', ()=>{
+            if (loopChk.checked) { video.currentTime = 0; video.play(); return; }
+            if (!autonextChk.checked) return;
+            const nextIdx = currentIndex + 1;
+            if (nextIdx < playlist.length) {
+                playIndex(nextIdx);
+            }
+        });
+
+        clearListBtn.addEventListener('click', ()=>{
+            playlist = [];
+            currentIndex = -1;
+            playlistEl.querySelectorAll('.item').forEach(n=>n.remove());
+            video.pause();
+            video.removeAttribute('src');
+            video.load();
+        });
+
+        // subtitles
+        subFile.addEventListener('change', ()=>{
+            const f = subFile.files[0];
+            if (!f) return;
+            const url = URL.createObjectURL(f);
+            // remove existing textTracks and <track> elements
+            Array.from(video.querySelectorAll('track')).forEach(t=>t.remove());
+            const track = document.createElement('track');
+            track.kind = 'subtitles';
+            track.srclang = 'en';
+            track.label = f.name;
+            track.src = url;
+            track.default = true;
+            video.appendChild(track);
+            // reload to enable
+            setTimeout(()=> {
+                try { video.textTracks[0].mode = 'showing'; } catch(e){}
+            }, 300);
+        });
+
+        removeSubsBtn.addEventListener('click', ()=>{
+            Array.from(video.querySelectorAll('track')).forEach(t=>t.remove());
+        });
+
+        // preserve basic state in memory (not persisted)
+        // Add a sample remote video to show functionality
+        addToPlaylist({name:'Sample - Big Buck Bunny (short)', src:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', type:'video/mp4'});
+        loadPlaylistUI();
+
+        // handle clicks on video to toggle play
+        video.addEventListener('click', ()=> {
+            if (video.paused) video.play(); else video.pause();
+        });
+
+        // accessibility: focus styles
+        document.querySelectorAll('button,input,select').forEach(el=>{
+            el.addEventListener('focus', ()=> el.style.outline='2px solid rgba(6,182,212,0.18)');
+            el.addEventListener('blur', ()=> el.style.outline='none');
+        });
+    </script>
+</body>
+</html>

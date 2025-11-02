@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body {
+        background-color: rgb(172, 175, 176);
+      }
+      a {
+        text-decoration: none; /*removes the underline from the link*/
+        color: rgb(64, 70, 70);
+        font-size: 20px;
+        margin: 117px;
+      }
+      h1 {
+        color: #333;
+      }
+      p {
+        font-size: 18px;
+        color: #414040;
+      }
+      .container {
+        border: 1px solid #000; /* border refers to the line around the element*/
+        margin: 5px; /* margin refers to the space outside the border*/
+        padding: 20px; /* padding refers to the space between the border and the content*/
+      }
+      .outer {
+        border: 1px solid #000;
+        margin: 5px;
+        padding: 10px;
+        /* margin-top: 10px; */
+      }
+      /* #VersionControlTools {
+        margin: 10px;
+        padding: 5px;
+        color:rgb(90, 78, 78)
+      } */
+    </style>
+    <!--Internal CSS-->
+  </head>
+  <body>
+    <header style="text-align: center; font-size: 30px; color: #414040">
+      Introductory Page
+    <hr style="border: 1px solid black">
+    <nav>
+      <div class="navbar">
+        <a href="#home">Home</a>
+        <a href="#services">Services</a>
+        <a href="#contact">Contact</a>
+        <a href="#about us">About Us</a>
+        <a href="#help">Help</a>
+      </div>
+      </nav>
+    </header>
+    <hr style="border: 1px solid black" >
+    <!-- <h1 style="color: red;background-color: black">Designing The Webpage</h1> Inline CSS -->
+    <div>
+        <h1 id="Parent">Welcome to Git Repository</h1>
+    </div>
+    <div>
+       <p id="Child">
+        The Git repository is a place where you can store your project's files and track their changes over time. It serves as a foundation for version control, enabling collaboration and efficient project management.
+       </p>
+    </div>
+    <div>
+        <h1>Understanding Git Repositories</h1>
+    </div>
+    <div>
+        <p>
+          A Git repository is a virtual storage of your project. It allows you to save versions of your code, track changes, and collaborate with others.You can create a repository locally on your computer or host it on platforms like GitHub for remote access and sharing.
+        </p>
+    </div>
+    <div class="container">
+      <p>This is a paragraph inside a div element.</p>
+    </div>
+    <div class="outer">
+      <p>This is outer div element</p>
+    </div>
+    <!-- <div>
+      <label for="VersionControlTools">Choose a version control tool:</label>
+      <select name="Version Control Tools" id="VersionControlTools">
+        <option value="git">Git</option>
+        <option value="subversion">Subversion</option>
+        <option value="mercurial">Mercurial</option>
+      </select>
+    </div> -->
+  </body>
+</html>
+
+<!-- Types of CSS-
+ 1.Inline CSS - is used inside the body tag by using the style attribute.
+ 2.Internal CSS - is used inside the head section/tag by using the style tag.
+ 3.External CSS - is used in a separate file with .css extension and is linked to the HTML file using the link tag inside the head tag. -->
+
+<!-- Priority - Style Attribute > id > class > element -->
+
+<!-- `rel="stylesheet"`: Specifies that the linked file is a stylesheet.
+`href="styles.css"`: Indicates the path to the external CSS file. -->
+
+<!-- A responsive image (srcset) in HTML is an image that automatically adjusts its size, resolution, and layout to fit different screen sizes and devices (like mobiles, tablets, or desktops), ensuring the best user experience without distortion or unnecessary data usage. -->
+
+<!-- if class attribute is used then the selector is used as .selector 
+and if id attribute is used then the selector is used as #selector-->

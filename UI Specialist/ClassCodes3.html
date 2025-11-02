@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        table {
+            border: 5px solid black;
+            border-collapse: collapse;
+            background-color: lightgrey;
+            width: 500px;
+        }
+        th,td{
+            border: 2px solid black;
+            padding: 10px;
+            text-align: centre;
+        }
+        
+        /* td{
+            text-align: center;
+        } */
+        tr:nth-child(even) {
+            background-color: aqua;
+        }
+        tr:hover{
+            background-color: lightgreen;
+            cursor: pointer; /* pointer - uses hand icon*/
+            color: red;
+        }
+        button{
+            background-color: red;
+            color: white;
+            padding: 10px 20px;
+            border:none;
+            border-radius: 20px;  /*decides the shape*/
+            cursor: pointer;
+            font-size: medium;
+        }
+        .container{
+            display: flex;
+            /* border: 2px solid black; */
+            gap: 50px;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+        #first{
+            /* display: flex; */
+            display: grid;
+            gap: 50px;
+            /* flex-direction: column; */
+        }
+        a{
+            text-decoration: none;
+            color: black;
+        }
+        .item{
+            border: 5px solid black;
+            padding: 20px;
+            text-align: center;
+        }
+        /* @media (max-width: 399px){
+            .container{
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        @media (min-width: 400px){
+            .container{
+                flex-direction: row;
+                align-items: center;
+            }
+        } */
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <th>Student Id</th>
+            <th>Student Name</th>
+        </tr>
+        <tr>
+            <td>101</td>
+            <td>Deepak</td>
+        </tr>
+        <tr>
+            <td>102</td>
+            <td>Anas</td>
+        </tr>
+        <tr>
+            <td>103</td>
+            <td>Yash</td>
+        </tr>
+        <tr>
+            <td>104</td>
+            <td>Vishwas</td>
+        </tr>
+        <tr>
+            <td>105</td>
+            <td>Harsh</td>
+        </tr>
+    </table>
+    <br>
+    <button>Click</button>
+    <br>
+    <br>
+    <div class="container">
+        <div class="item">item1</div>
+        <div class="item" id="first">
+            <a href="">Home</a>
+            <a href="">Contact</a>
+            <a href="">About</a>
+        </div>
+        <div class="item">item3</div>
+    </div>
+</body>
+</html>
